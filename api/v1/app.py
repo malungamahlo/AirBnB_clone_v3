@@ -1,24 +1,31 @@
 #!/usr/bin/python3
-
-from flask import Flask
+'''funtion using flask '''
+from flask import Flask, jsonify
 from models import storage
 from api.v1.views import app_views
+import os
+from flask_cors import CORS
 
-# Create a Flask application instance
 app = Flask(__name__)
-
-# Register the blueprint for API v1 views
 app.register_blueprint(app_views)
+host = os.environ.get('HBNB_API_HOST', '0.0.0.0')
+port = os.environ.get('HBNB_API_PORT', '5000')
+CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
 
-# Close the storage session when the application context tears down
+
 @app.teardown_appcontext
-def teardown_db(exception):
+def close_method(exception=None):
+    ''' close ssesions '''
     storage.close()
 
-# Configure the server based on environment variables
-host = os.environ.get('HBNB_API_HOST', '0.0.0.0')
-port = int(os.environ.get('HBNB_API_PORT', 5000))
 
-# Run the Flask development server in threaded mode
-if __name__ == "__main__":
-    app.run(host=host, port=port, threaded=True)
+@app.errorhandler(404)
+def resource_not_found(e):
+    """††† return 404 not found †††
+    """
+    return jsonify({"error": "Not found"}), 404
+
+
+if __name__ == '__main__':
+    app.run(host=host,
+            port=port, threaded=True)

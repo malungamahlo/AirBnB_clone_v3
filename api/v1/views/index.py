@@ -1,10 +1,28 @@
 #!/usr/bin/python3
-
+"""create a route /status on the object app_views that returns a JSON
+"""
 from flask import jsonify
-from api.v1.views import app_views  # Import the blueprint
+from api.v1.views import app_views
+from models import storage
 
-# Define a route handler for the /status endpoint within the blueprint
+
 @app_views.route('/status')
-def status():
-    """Returns a JSON response indicating the API status."""
-    return jsonify({"status": "OK"})
+def json_return():
+    """ return json
+    """
+    return jsonify({
+                    "status": "OK"
+                    })
+
+
+@app_views.route('/stats')
+def stat_return():
+    """statistic return
+    """
+    clas_stat = {"amenities": storage.count("Amenity"),
+                 "cities": storage.count("City"),
+                 "places": storage.count("Place"),
+                 "reviews": storage.count("Review"),
+                 "states": storage.count("State"),
+                 "users": storage.count("User")}
+    return jsonify(clas_stat)
